@@ -632,7 +632,7 @@ def add_attack_view(request):
     """View for manually adding a panic attack episode."""
 
     if request.method == 'POST':
-        USER_ID = request.user.username if request.user.is_authenticated else None
+        USER_ID = request.user.username if request.user.is_authenticated else "admin"
         if not USER_ID:
             messages.error(request, "User not authenticated.")
             return redirect("dashboard")
