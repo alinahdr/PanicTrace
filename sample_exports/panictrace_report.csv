@@ -1,0 +1,34 @@
+date,attack_hour,severity,duration_min,trigger,symptoms_raw_text,chest_pain,chills_or_heat,depersonalization,derealization,dizziness,fear_losing_control,fear_of_dying,nausea,palpitations,paresthesia,shortness_of_breath,sweating,trembling
+2026-02-01,13,7,14,family conflict,,0,0,0,1,1,0,0,1,1,0,0,1,1
+2026-02-02,10,9,16,family conflict,,0,0,0,0,0,1,0,1,0,1,1,0,0
+2026-02-02,5,4,12,public speaking,,1,1,1,0,1,0,1,0,0,1,0,0,1
+2026-02-02,11,9,21,thesis stress,,0,0,1,0,1,1,0,1,1,0,0,0,1
+2026-02-03,2,9,11,public speaking,,0,1,0,0,0,1,0,0,0,0,0,0,0
+2026-02-03,23,6,12,public speaking,,0,1,1,1,0,0,1,1,1,1,1,0,1
+2026-02-03,14,9,7,unknown,,0,1,0,0,1,0,0,0,1,1,1,0,1
+2026-02-03,3,6,6,work stress,,0,0,0,0,0,0,1,1,0,0,0,0,0
+2026-02-04,2,7,12,family conflict,,1,1,1,1,0,1,1,0,0,1,0,0,0
+2026-02-04,10,7,25,public speaking,,1,1,1,0,0,1,0,0,1,1,0,1,1
+2026-02-04,12,8,24,family conflict,,0,0,1,0,0,1,0,1,0,1,0,1,0
+2026-02-04,16,9,26,thesis stress,,0,1,1,1,1,1,1,0,1,1,0,1,1
+2026-02-05,14,8,26,family conflict,,0,0,0,0,1,0,0,1,0,1,1,1,0
+2026-02-05,15,9,6,thesis stress,,0,0,0,0,1,0,0,0,0,1,1,0,1
+2026-02-05,23,7,8,crowded place,,0,0,0,1,0,1,0,0,1,1,1,0,0
+2026-02-05,7,9,24,public speaking,,1,0,0,1,1,0,0,1,0,0,1,0,1
+2026-02-06,1,8,22,public speaking,,0,1,1,1,0,0,0,0,0,1,1,1,1
+2026-02-06,17,6,7,thesis stress,,1,0,1,0,0,1,0,1,1,1,1,0,0
+2026-02-06,15,7,12,work pressure,,1,1,0,0,1,0,0,0,1,1,0,0,1
+2026-02-06,8,9,13,work pressure,,0,0,1,0,0,1,1,0,0,0,1,1,1
+2026-02-08,11,4,11,family conflict,,1,0,0,0,0,1,0,0,1,0,0,1,1
+2026-02-08,17,4,24,crowded place,,1,0,0,0,0,0,1,1,0,0,1,1,1
+2026-02-09,7,6,20,crowded place,,0,0,0,1,1,1,0,1,1,0,1,1,0
+2026-02-09,2,8,9,exam,,1,0,1,1,0,0,1,1,1,1,0,1,0
+2026-02-13,10,9,15,work stress,,0,0,0,0,0,0,0,1,1,0,0,0,0
+2026-02-14,20,8,25,public speaking,fear and dizzy,0,0,0,0,1,0,0,0,0,0,0,0,0
+2026-02-15,18,6,15,thesis,dizzy,0,0,0,0,1,0,0,0,0,0,0,0,0
+2026-02-15,17,7,45,stress,i could not breathe and i was sweating,0,0,0,0,0,0,0,0,0,0,1,1,0
+2026-02-18,19,8,16,uni stress,dizzy,0,0,0,0,1,0,0,0,0,0,0,0,0
+2026-02-23,17,7,5,thesis stress,i was dizzy and i had an headache,0,0,0,0,1,0,0,0,0,0,0,0,0
+2026-02-23,17,7,7,thesis stress,i was dizzy and i had a headache,0,0,0,0,1,0,0,0,0,0,0,0,0
+2026-02-23,20,5,9,thesis stress,i was light-headed and i was short of breath,0,0,0,0,0,0,0,0,0,0,1,0,0
+2026-02-23,20,7,6,thesis stress,i felt like i was losing control i was dizzy and sweaty,0,0,0,0,1,1,0,0,0,0,0,1,0
