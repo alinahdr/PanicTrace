@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PanicTrace Dashboard</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #17a2b8;
+            --secondary-color: #0d8ca0;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --panictrace-cyan: #17a2b8;
+            --panictrace-light: #a8e6f0;
+            --panictrace-dark: #0d8ca0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #a8e6f0 0%, #17a2b8 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dashboard-container {
+            padding: 30px 0;
+        }
+
+        .header-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .filter-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .severity-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .severity-1, .severity-2, .severity-3 {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .severity-4, .severity-5, .severity-6 {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .severity-7, .severity-8, .severity-9, .severity-10 {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .btn-filter {
+            background: linear-gradient(135deg, #17a2b8 0%, #0d8ca0 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4);
+            color: white;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+            color: white;
+        }
+
+        .btn-reset {
+            background: #6b7280;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-reset:hover {
+            background: #4b5563;
+            color: white;
+        }
+
+        h1, h2, h3 {
+            color: #1f2937;
+        }
+
+        .logo-img {
+            width: 80px;
+            height: 80px;
+            margin-right: 15px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+        }
+
+        .panictrace-brand {
+            color: #17a2b8;
+            font-weight: 700;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #374151;
+        }
+    </style>
+</head>
+<body>
+    <div class="container dashboard-container">
+        <!-- Header -->
+        <div class="header-card">
+            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                <div class="header-title">
+                    <svg class="logo-img" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 170 80 C 170 44.65 140.35 20 105 20 C 69.65 20 40 44.65 40 80 C 40 115.35 69.65 140 105 140 C 113 140 120.5 138.5 127.5 135.5 L 155 155 L 145 125 C 161 113 170 97.5 170 80 Z"
+                              fill="none"
+                              stroke="#17a2b8"
+                              stroke-width="12"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"/>
+                        <path d="M 60 80 L 75 80 L 85 50 L 95 110 L 105 65 L 115 95 L 125 80 L 150 80"
+                              fill="none"
+                              stroke="#17a2b8"
+                              stroke-width="8"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"/>
+                    </svg>
+                    <div>
+                        <h1 class="mb-2"><span class="panictrace-brand">PanicTrace</span> Dashboard</h1>
+                        <p class="text-muted mb-0">Alexa Skill for Tracking Panic Attacks</p>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <a href="{% url 'add_attack' %}" class="btn btn-add mb-2">
+                        <i class="bi bi-plus-circle"></i> Add Attack
+                    </a>
+                    <br>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-card">
+            <h3 class="mb-3"><i class="bi bi-funnel"></i> Filters</h3>
+            <form method="GET" action="">
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label"><i class="bi bi-calendar"></i> From Date</label>
+                        <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label"><i class="bi bi-calendar"></i> To Date</label>
+                        <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-filter flex-fill">
+                            <i class="bi bi-search"></i> Filter
+                        </button>
+                        <a href="?" class="btn btn-reset">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    <!-- Buttons-->
+        <div style="margin: 20px 0;">
+            <a href="{% url 'export_csv' %}" class="btn btn-success">
+                ⬇ Download CSV
+            </a>
+            <a href="{% url 'export_pdf' %}" class="btn btn-danger">
+                ⬇ Download PDF
+            </a>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="stat-icon" style="color: #17a2b8;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-value" style="color: #17a2b8;">{{ stats.total_attacks }}</div>
+                    <div class="stat-label">Total Attacks</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="stat-icon text-warning">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <div class="stat-value text-warning">{{ stats.avg_severity }}</div>
+                    <div class="stat-label">Avg. Severity</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="stat-icon" style="color: #17a2b8;">
+                        <i class="bi bi-clock"></i>
+                    </div>
+                    <div class="stat-value" style="color: #17a2b8;">{{ stats.avg_duration }} min</div>
+                    <div class="stat-label">Avg. Duration</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card text-center">
+                    <div class="stat-icon text-danger">
+                        <i class="bi bi-heart-pulse"></i>
+                    </div>
+                    <div class="stat-value text-danger" style="font-size: 1.3rem;">{{ stats.most_common_symptom }}</div>
+                    <div class="stat-label">Most Common Symptom</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1: Symptom Frequency + Time of Day -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="bi bi-bar-chart-fill"></i> Symptom Frequency</h3>
+                    <canvas id="symptomChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="bi bi-clock-history"></i> Attacks by Time of Day</h3>
+                    <canvas id="hourChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2: Weekday + Trigger vs Severity -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="bi bi-calendar-week"></i> Attacks by Day of Week</h3>
+                    <canvas id="weekdayChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="bi bi-lightning-charge"></i> Trigger vs Average Severity</h3>
+                    <canvas id="triggerSeverityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 3: Duration vs Severity (Scatter) + Severity Over Time -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="bi bi-diagram-3"></i> Duration vs Severity</h3>
+                    <canvas id="durationSeverityChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="bi bi-graph-up"></i> Severity Over Time</h3>
+                    <canvas id="severityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-card">
+            <h3 class="mb-4"><i class="bi bi-table"></i> Detailed Data</h3>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th><i class="bi bi-calendar3"></i> Date</th>
+                            <th><i class="bi bi-clock"></i> Time</th>
+                            <th><i class="bi bi-speedometer"></i> Severity</th>
+                            <th><i class="bi bi-clock-history"></i> Duration</th>
+                            <th><i class="bi bi-lightning-fill"></i> Trigger</th>
+                            <th><i class="bi bi-heart-pulse"></i> Symptoms</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in data %}
+                        <tr>
+                            <td><strong>{{ entry.formatted_date }}</strong></td>
+                            <td>{{ entry.attack_hour|default:"N/A" }}:00</td>
+                            <td>
+                                <span class="severity-badge severity-{{ entry.severity }}">
+                                    {{ entry.severity }}/10
+                                </span>
+                            </td>
+                            <td>{{ entry.duration_min }} min</td>
+                            <td><span class="badge bg-secondary">{{ entry.trigger }}</span></td>
+                            <td>{{ entry.decoded_symptoms }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox" style="font-size: 3rem;"></i><br>
+                                No data available for selected filters
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js Initialization -->
+    <script>
+        const panicTraceCyan = 'rgb(23, 162, 184)';
+        const panicTraceCyanLight = 'rgba(23, 162, 184, 0.2)';
+        const panicTraceCyanMed = 'rgba(23, 162, 184, 0.7)';
+
+        // 1. Symptom Frequency Chart
+        const symptomCtx = document.getElementById('symptomChart').getContext('2d');
+        new Chart(symptomCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ symptom_chart_labels|safe }},
+                datasets: [{
+                    label: 'Frequency',
+                    data: {{ symptom_chart_values|safe }},
+                    backgroundColor: panicTraceCyanMed,
+                    borderColor: panicTraceCyan,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+
+        // 2. Hour Distribution Chart
+        const hourCtx = document.getElementById('hourChart').getContext('2d');
+        new Chart(hourCtx, {
+            type: 'line',
+            data: {
+                labels: {{ hour_chart_labels|safe }},
+                datasets: [{
+                    label: 'Number of Attacks',
+                    data: {{ hour_chart_values|safe }},
+                    borderColor: panicTraceCyan,
+                    backgroundColor: panicTraceCyanLight,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+
+        // 3. Weekday Distribution Chart
+        const weekdayCtx = document.getElementById('weekdayChart').getContext('2d');
+        new Chart(weekdayCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ weekday_chart_labels|safe }},
+                datasets: [{
+                    label: 'Number of Attacks',
+                    data: {{ weekday_chart_values|safe }},
+                    backgroundColor: panicTraceCyanMed,
+                    borderColor: panicTraceCyan,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+
+        // 4. Trigger vs Severity Chart
+        const triggerSevCtx = document.getElementById('triggerSeverityChart').getContext('2d');
+        new Chart(triggerSevCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ trigger_severity_labels|safe }},
+                datasets: [{
+                    label: 'Average Severity',
+                    data: {{ trigger_severity_values|safe }},
+                    backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                    borderColor: 'rgb(245, 158, 11)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: 10 } }
+            }
+        });
+
+        // 5. Duration vs Severity Scatter Chart
+        const durSevCtx = document.getElementById('durationSeverityChart').getContext('2d');
+        new Chart(durSevCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Attacks',
+                    data: {{ duration_severity_data|safe }},
+                    backgroundColor: panicTraceCyanMed,
+                    borderColor: panicTraceCyan,
+                    borderWidth: 2,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Duration: ${context.parsed.x} min, Severity: ${context.parsed.y}/10`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Duration (minutes)' }, beginAtZero: true },
+                    y: { title: { display: true, text: 'Severity' }, beginAtZero: true, max: 10 }
+                }
+            }
+        });
+
+        // 6. Severity Over Time Chart
+        const severityCtx = document.getElementById('severityChart').getContext('2d');
+        new Chart(severityCtx, {
+            type: 'line',
+            data: {
+                labels: {{ severity_chart_labels|safe }},
+                datasets: [{
+                    label: 'Average Severity',
+                    data: {{ severity_chart_values|safe }},
+                    borderColor: panicTraceCyan,
+                    backgroundColor: panicTraceCyanLight,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: 10, ticks: { stepSize: 1 } } }
+            }
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-4" style="background: white; border-radius: 15px 15px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.08);">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    <h5 class="mb-2" style="color: #17a2b8; font-weight: 600;">
+                        <i class="bi bi-person-badge"></i> Bachelor Thesis Project
+                    </h5>
+                    <p class="mb-1" style="color: #374151; font-weight: 500;">Alina Haider</p>
+                    <p class="mb-1" style="color: #6b7280;">
+                        <i class="bi bi-envelope"></i>
+                        <a href="mailto: alinaahaider@gmail.com" style="color: #17a2b8; text-decoration: none;">
+                            alinaahaider@gmail.com
+                        </a>
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="mb-1" style="color: #374151; font-weight: 500;">
+                        PanicTrace: Alexa Skill for Panic Attack Documentation
+                    </p>
+                    <p class="mb-1" style="color: #6b7280; font-size: 0.9rem;">
+                        <i class="bi bi-calendar3"></i> 2025/2026
+                    </p>
+                    <p class="mb-0" style="color: #6b7280; font-size: 0.85rem;">
+                        Developed with Django, AWS DynamoDB & Alexa Skills Kit
+                    </p>
+                </div>
+            </div>
+            <hr style="border-color: #e5e7eb; margin: 20px 0;">
+            <div class="text-center" style="color: #9ca3af; font-size: 0.85rem;">
+                <i class="bi bi-shield-check"></i> Data stored securely in AWS DynamoDB |
+                <i class="bi bi-graph-up"></i> Real-time analytics |

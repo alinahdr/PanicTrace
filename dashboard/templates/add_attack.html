@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Panic Attack - PanicTrace</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #a8e6f0 0%, #17a2b8 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 30px 0;
+        }
+        
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .form-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .panictrace-brand {
+            color: #17a2b8;
+            font-weight: 700;
+        }
+        
+        .symptom-checkbox {
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .symptom-checkbox:hover {
+            border-color: #17a2b8;
+            background-color: #f0f9ff;
+        }
+        
+        .symptom-checkbox input[type="checkbox"]:checked + label {
+            color: #17a2b8;
+            font-weight: 600;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #17a2b8 0%, #0d8ca0 100%);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4);
+        }
+        
+        .btn-back {
+            background: #6b7280;
+            border: none;
+            color: white;
+            padding: 10px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-back:hover {
+            background: #4b5563;
+            color: white;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        
+        .form-section:last-child {
+            border-bottom: none;
+        }
+        
+        .section-title {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        
+        .required-field::after {
+            content: " *";
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container form-container">
+        <div class="form-card">
+            <div class="form-header">
+                <h1><span class="panictrace-brand">PanicTrace</span></h1>
+                <h2>Add Panic Attack</h2>
+                <p class="text-muted">Document a panic attack manually</p>
+                <a href="{% url 'dashboard' %}" class="btn-back">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" action="">
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="bi bi-calendar-event"></i> Basic Information</h3>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label required-field">Date</label>
+                            <input type="date" name="date" class="form-control" required 
+                                   value="{{ request.POST.date|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required-field">Time of Day (Hour)</label>
+                            <select name="attack_hour" class="form-select" required>
+                                <option value="">Select hour...</option>
+                                {% for hour in "012345678901234567890123"|make_list %}
+                                <option value="{{ forloop.counter0 }}" 
+                                    {% if request.POST.attack_hour == forloop.counter0|stringformat:"s" %}selected{% endif %}>
+                                    {{ forloop.counter0 }}:00
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attack Details -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="bi bi-speedometer2"></i> Attack Details</h3>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label required-field">Severity (1-10)</label>
+                            <select name="severity" class="form-select" required>
+                                <option value="">Select severity...</option>
+                                {% for i in "12345678910"|make_list %}
+                                <option value="{{ forloop.counter }}"
+                                    {% if request.POST.severity == forloop.counter|stringformat:"s" %}selected{% endif %}>
+                                    {{ forloop.counter }} {% if forloop.counter <= 3 %}(Mild){% elif forloop.counter <= 6 %}(Moderate){% else %}(Severe){% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required-field">Duration (minutes)</label>
+                            <input type="number" name="duration_min" class="form-control" 
+                                   min="1" max="180" required placeholder="e.g., 15"
+                                   value="{{ request.POST.duration_min|default:'' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <label class="form-label required-field">Trigger</label>
+                        <input type="text" name="trigger" class="form-control" required 
+                               placeholder="e.g., public speaking, work stress, thesis..."
+                               value="{{ request.POST.trigger|default:'' }}">
+                    </div>
+                </div>
+
+                <!-- Symptoms -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="bi bi-heart-pulse"></i> Symptoms</h3>
+                    <p class="text-muted mb-3">Check all symptoms that occurred during this attack:</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="palpitations" id="palpitations"
+                                           {% if request.POST.palpitations %}checked{% endif %}>
+                                    <label class="form-check-label" for="palpitations">
+                                        <i class="bi bi-heart"></i> Heart Palpitations
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="shortness_of_breath" id="shortness_of_breath"
+                                           {% if request.POST.shortness_of_breath %}checked{% endif %}>
+                                    <label class="form-check-label" for="shortness_of_breath">
+                                        <i class="bi bi-wind"></i> Shortness of Breath
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="chest_pain" id="chest_pain"
+                                           {% if request.POST.chest_pain %}checked{% endif %}>
+                                    <label class="form-check-label" for="chest_pain">
+                                        <i class="bi bi-hospital"></i> Chest Pain/Discomfort
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="dizziness" id="dizziness"
+                                           {% if request.POST.dizziness %}checked{% endif %}>
+                                    <label class="form-check-label" for="dizziness">
+                                        <i class="bi bi-arrow-repeat"></i> Dizziness/Lightheadedness
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="trembling" id="trembling"
+                                           {% if request.POST.trembling %}checked{% endif %}>
+                                    <label class="form-check-label" for="trembling">
+                                        <i class="bi bi-broadcast"></i> Trembling/Shaking
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="sweating" id="sweating"
+                                           {% if request.POST.sweating %}checked{% endif %}>
+                                    <label class="form-check-label" for="sweating">
+                                        <i class="bi bi-droplet"></i> Sweating
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="nausea" id="nausea"
+                                           {% if request.POST.nausea %}checked{% endif %}>
+                                    <label class="form-check-label" for="nausea">
+                                        <i class="bi bi-emoji-dizzy"></i> Nausea/Stomach Distress
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="chills_or_heat" id="chills_or_heat"
+                                           {% if request.POST.chills_or_heat %}checked{% endif %}>
+                                    <label class="form-check-label" for="chills_or_heat">
+                                        <i class="bi bi-thermometer"></i> Chills or Heat Sensations
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="paresthesia" id="paresthesia"
+                                           {% if request.POST.paresthesia %}checked{% endif %}>
+                                    <label class="form-check-label" for="paresthesia">
+                                        <i class="bi bi-hand-index"></i> Numbness/Tingling
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="derealization" id="derealization"
+                                           {% if request.POST.derealization %}checked{% endif %}>
+                                    <label class="form-check-label" for="derealization">
+                                        <i class="bi bi-eye"></i> Derealization (Unreality)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="depersonalization" id="depersonalization"
+                                           {% if request.POST.depersonalization %}checked{% endif %}>
+                                    <label class="form-check-label" for="depersonalization">
+                                        <i class="bi bi-person"></i> Depersonalization
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="fear_losing_control" id="fear_losing_control"
+                                           {% if request.POST.fear_losing_control %}checked{% endif %}>
+                                    <label class="form-check-label" for="fear_losing_control">
+                                        <i class="bi bi-exclamation-triangle"></i> Fear of Losing Control
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="symptom-checkbox">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="fear_of_dying" id="fear_of_dying"
+                                           {% if request.POST.fear_of_dying %}checked{% endif %}>
+                                    <label class="form-check-label" for="fear_of_dying">
+                                        <i class="bi bi-heartbreak"></i> Fear of Dying
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <label class="form-label">Additional Symptom Notes (Optional)</label>
+                        <textarea name="symptoms_raw_text" class="form-control" rows="3" 
+                                  placeholder="Any additional symptoms or notes...">{{ request.POST.symptoms_raw_text|default:'' }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-check-circle"></i> Save Panic Attack
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-4" style="background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 800px; margin: 30px auto 0;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    <h5 class="mb-2" style="color: #17a2b8; font-weight: 600;">
+                        <i class="bi bi-person-badge"></i> Bachelor Thesis Project
+                    </h5>
+                    <p class="mb-1" style="color: #374151; font-weight: 500;">Alina Haider</p>
+                    <p class="mb-1" style="color: #6b7280;">
+                        <i class="bi bi-envelope"></i>
+                        <a href="mailto: alinaahaider@gmail.com" style="color: #17a2b8; text-decoration: none;">
+                            alinaahaider@gmail.com
+                        </a>
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="mb-1" style="color: #374151; font-weight: 500;">
+                        PanicTrace: Alexa Skill for Panic Attack Documentation
+                    </p>
+                    <p class="mb-1" style="color: #6b7280; font-size: 0.9rem;">
+                        <i class="bi bi-calendar3"></i> 2025/2026
+                    </p>
+                    <p class="mb-0" style="color: #6b7280; font-size: 0.85rem;">
+                        Developed with Django, AWS DynamoDB & Alexa Skills Kit
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
